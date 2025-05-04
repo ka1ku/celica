@@ -8,9 +8,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 transform = transforms.ToPILImage()
 mtcnn = MTCNN(image_size=224, keep_all=False)
 
-# Have to be .jpg
 id_face = mtcnn(Image.open("photos/ben_id2.jpg"))
-selfie_face = mtcnn(Image.open("photos/ben_id.jpg"))
+selfie_face = mtcnn(Image.open("photos/korea.jpg"))
 
 id_face_pil = transform(id_face)
 id_selfie_face_pil = transform(selfie_face)
