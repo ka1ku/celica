@@ -1,41 +1,29 @@
-from facenet_pytorch import MTCNN
-from PIL import Image
-import torch
-import torchvision.transforms as transforms
-from facenet_pytorch import InceptionResnetV1
+import insightface
+from insightface.app import FaceAnalysis
 from sklearn.metrics.pairwise import cosine_similarity
+import cv2
+import logging
 
-transform = transforms.ToPILImage()
-mtcnn = MTCNN(image_size=224, keep_all=False)
+logging.basicConfig(level=logging.ERROR)
 
-id_face = mtcnn(Image.open("photos/ben_id2.jpg"))
-selfie_face = mtcnn(Image.open("photos/korea.jpg"))
+app = FaceAnalysis(name='buffalo_l')
+app.prepare(ctx_id=-1, det_size=(640, 640))
 
-id_face_pil = transform(id_face)
-id_selfie_face_pil = transform(selfie_face)
+img1 = cv2.imread("photos/kai/id_1.jpeg")
+img2 = cv2.imread("photos/kai/id_3.jpg")
 
-id_face_pil.show()
-id_selfie_face_pil.show()
+faces1 = app.get(img1)
+faces2 = app.get(img2)
 
+assert faces1 and faces2, "Face not detected in one or both images."
 
-model = InceptionResnetV1(pretrained="vggface2").eval()
+emb1 = faces1[0].embedding
+emb2 = faces2[0].embedding
 
-with torch.no_grad():
-    emb1 = model(id_face.unsqueeze(0))
-    emb2 = model(selfie_face.unsqueeze(0))
-  
-    
-vec1 = emb1 / emb1.norm(dim=1, keepdim=True)
-vec2 = emb2 / emb2.norm(dim=1, keepdim=True)
+sim = cosine_similarity([emb1], [emb2])[0][0]
+print(f"Similarity score: {sim:.4f}")
 
-sim = cosine_similarity(vec1.cpu(), vec2.cpu())[0][0]
-print(f"Cosine similarity: {sim:.4f}")
-
-if sim > 0.8:
-    print("Almost definitely the same person")
-elif sim > 0.6:
-    print("Probably the same person")
-elif sim > 0.4:
-    print("Unsure")
+if sim > 0.4:
+  print("same")
 else:
-    print("Not the same person")
+  print("diff")
