@@ -9,8 +9,8 @@ logging.basicConfig(level=logging.ERROR)
 app = FaceAnalysis(name='buffalo_l')
 app.prepare(ctx_id=-1, det_size=(640, 640))
 
-img1 = cv2.imread("photos/ben_id5.jpg")
-img2 = cv2.imread("photos/ben_id6.jpg")
+img1 = cv2.imread("photos/other/otherguy.jpg")
+img2 = cv2.imread("photos/ben/id_6.jpg")
 
 faces1 = app.get(img1)
 faces2 = app.get(img2)
